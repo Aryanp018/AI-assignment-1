@@ -1,0 +1,101 @@
+import numpy as np
+
+# Perceptron class
+class Perceptron:
+    def __init__(self, input_size, learning_rate=0.1):
+        self.weights = np.random.rand(input_size)
+        self.learning_rate = learning_rate
+
+    def train(self, X, y, epochs):
+        for epoch in range(epochs):
+            squared_error = 0
+            for i in range(len(X)):
+                prediction = self.predict(X[i])
+                error = y[i] - prediction
+                squared_error += error ** 2
+                self.weights += self.learning_rate * error * X[i]
+
+            accuracy = self.evaluate(X, y)
+            print(f"Epoch {epoch + 1}: Squared Error = {squared_error}, Accuracy = {accuracy}")
+
+    def predict(self, x):
+        return 1 if np.dot(self.weights, x) >= 0 else 0
+
+    def evaluate(self, X, y):
+        correct = 0
+        for i in range(len(X)):
+            if self.predict(X[i]) == y[i]:
+                correct += 1
+        return correct / len(X) * 100  # return accuracy as percentage
+
+
+# Dataset
+X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+y = np.array([0, 1, 1, 0])
+
+# Single perceptron learning experiments
+def single_perceptron_experiment(initial_weights=None):
+    if initial_weights is None:
+        initial_weights = np.random.rand(2)
+    else:
+        initial_weights = initial_weights.copy()
+
+    perceptron = Perceptron(input_size=2)
+    perceptron.weights = initial_weights
+    print("Initial Random Weights:", perceptron.weights)
+    perceptron.train(X, y, epochs=10)
+    print("Final Weights:", perceptron.weights)
+    outputs = [perceptron.predict(x) for x in X]
+    squared_error = np.sum((outputs - y) ** 2)
+    accuracy = perceptron.evaluate(X, y)
+    print("Outputs for data:", outputs)
+    print("Squared Error:", squared_error)
+    print("Accuracy:", accuracy)
+    print()
+
+# Run experiments for different initial random weights
+for i in range(5):
+    print(f"Experiment {i+1}")
+    initial_weights = np.random.rand(2)
+    single_perceptron_experiment(initial_weights)
+
+# Batch version of perceptron learning algorithm
+class BatchPerceptron(Perceptron):
+    def train(self, X, y, epochs):
+        for epoch in range(epochs):
+            squared_error = 0
+            weight_update = np.zeros(len(self.weights))
+            for i in range(len(X)):
+                prediction = self.predict(X[i])
+                error = y[i] - prediction
+                squared_error += error ** 2
+                weight_update += error * X[i]
+            self.weights += self.learning_rate * weight_update
+            accuracy = self.evaluate(X, y)
+            print(f"Epoch {epoch + 1}: Squared Error = {squared_error}, Accuracy = {accuracy}")
+
+# Run batch perceptron learning experiments
+def batch_perceptron_experiment(initial_weights=None):
+    if initial_weights is None:
+        initial_weights = np.random.rand(2)
+    else:
+        initial_weights = initial_weights.copy()
+
+    perceptron = BatchPerceptron(input_size=2)
+    perceptron.weights = initial_weights
+    print("Initial Random Weights:", perceptron.weights)
+    perceptron.train(X, y, epochs=10)
+    print("Final Weights:", perceptron.weights)
+    outputs = [perceptron.predict(x) for x in X]
+    squared_error = np.sum((outputs - y) ** 2)
+    accuracy = perceptron.evaluate(X, y)
+    print("Outputs for data:", outputs)
+    print("Squared Error:", squared_error)
+    print("Accuracy:", accuracy)
+    print()
+
+# Run experiments for batch version with different initial random weights
+for i in range(5):
+    print(f"Batch Experiment {i+1}")
+    initial_weights = np.random.rand(2)
+    batch_perceptron_experiment(initial_weights)
